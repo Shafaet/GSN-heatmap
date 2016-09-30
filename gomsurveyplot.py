@@ -265,8 +265,14 @@ ax2.title.set_text('noise level in dbm')
 #ax1 = plt.subplot(projection="polar")
 #ax1 = plt.subplot(111)
 
+'''anything below or above vmin or vmax respectively will be replaced
+    by vmin or vmax respectively '''
 # the colorbar is returned in im 
-im = ax1.pcolormesh(tv,rv,polar_values)
+im = ax1.pcolormesh(tv,rv,polar_values,vmin=-125,vmax=-90)
+
+# If you dont want a fixed max - min range use the following instead
+#im = ax1.pcolormesh(tv,rv,polar_values)
+
 ax1.grid(True)
 plt.colorbar(im, cax=ax2) #plot the colorbor bside the heatmap
 
