@@ -272,11 +272,11 @@ for i in range(rv.shape[0]): #shape is a pair object
         '''
         x_dist = rv[i][j]*np.cos(tv[i][j])
         
-        x_loc =  min(range(len(ixp)), key=lambda i: abs(ixp[i]-x_dist))
-        #x_loc = findclosest(ixp,x_dist)
+        #x_loc =  min(range(len(ixp)), key=lambda i: abs(ixp[i]-x_dist))
+        x_loc = findclosest(ixp,x_dist)
         y_dist = rv[i][j]*np.sin(tv[i][j])
-        y_loc =  min(range(len(iyp)), key=lambda i: abs(iyp[i]-y_dist))
-        #y_loc = findclosest(iyp, y_dist)
+        #y_loc =  min(range(len(iyp)), key=lambda i: abs(iyp[i]-y_dist))
+        y_loc = findclosest(iyp, y_dist)
         
         #the sampling happends here
         polar_values[i][j] = invals[y_loc][x_loc]
