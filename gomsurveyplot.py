@@ -23,7 +23,6 @@
 
                    Alternatively you can also use pip to install them. Please look up the internet for pip instructions.
                    
-    Improvement opportunity: use binary search for sampling the final values for the polar skymap. (near line 200)
     
     Note:          some auxiliary files are created in the process of crating the final heat-map. They are a legacy of the development process. 
                    If you dont need or understand them then you can safely ignore them. 
@@ -33,7 +32,7 @@
 
     This source code is free software; you can redistribute it and/or
     modify it under the terms of the GNU Public License as published 
-    by the Free Software Foundation; either version 2 of the License,
+    by the Free Software Foundation; either version 3 of the License,
     or (at your option) any later version.
 
     This source code is distributed in the hope that it will be useful,
@@ -42,8 +41,7 @@
     Please refer to the GNU Public License for more details.
 
     You should have received a copy of the GNU Public License along with
-    this source code; if not, write to:
-    Free Software Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+    this source code; if not, see: <https://www.gnu.org/licenses/gpl.html>
 '''
 
 
@@ -54,6 +52,7 @@ import csv
 import re
 import numpy as np
 
+import bisect
 
 import math
 from scipy.interpolate import griddata
@@ -63,7 +62,52 @@ import matplotlib.gridspec as gridspec
 from scipy import ndimage
 
 
+'''
+    function:   findclosest() uses bisection algorithm to find 
+                the closest element in a sorted list. 
+    inputs: a  = a list sorted in an ascending order 
+            x  = the search item
+            
+    output: i = the index of the value closest to x in a
+'''
+def findclosest(a,x):
+    '''
+        a must be a sorted list in an ascending order
+    '''
+    
+    amin = a[0]
+    amax = a[-1]
+    
+    i = bisect.bisect(a,x)
+        
+    li = None
+    
+    if (i-1 < 0):
+        lval = amin
+        li = 0
+    else:
+        lval = a[i-1]
+        li = i-1
+       
+    
+    if (i == len(a)):
+        rval = a[i-1]
+        ri = i-1
+    else:
+        rval = a[i]
+        ri = i
+    
+    if (x - lval) <= (rval - x):
+        return li
+    else:
+        return ri
 
+
+
+
+'''
+The main function
+'''
 if __name__ == "__main__":
  
  
@@ -229,9 +273,10 @@ for i in range(rv.shape[0]): #shape is a pair object
         x_dist = rv[i][j]*np.cos(tv[i][j])
         
         x_loc =  min(range(len(ixp)), key=lambda i: abs(ixp[i]-x_dist))
-        
+        #x_loc = findclosest(ixp,x_dist)
         y_dist = rv[i][j]*np.sin(tv[i][j])
         y_loc =  min(range(len(iyp)), key=lambda i: abs(iyp[i]-y_dist))
+        #y_loc = findclosest(iyp, y_dist)
         
         #the sampling happends here
         polar_values[i][j] = invals[y_loc][x_loc]

@@ -27,3 +27,6 @@ Improvement opportunities: use binary search for sampling the final values for t
 
 Note:          some auxiliary files are created in the process of crating the final heat-map. They are a legacy of the development process. 
                    If you dont need or understand them then you can safely ignore them. 
+                   
+                   
+The folder dev-code contains some test and development codes that are later incorporated in the main software.
