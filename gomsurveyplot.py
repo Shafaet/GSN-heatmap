@@ -82,17 +82,17 @@ def findclosest(a,x):
         
     li = None
     
-    if (i-1 < 0):
+    if (i - 1 < 0):
         lval = amin
         li = 0
     else:
-        lval = a[i-1]
-        li = i-1
+        lval = a[i - 1]
+        li = i - 1
        
     
     if (i == len(a)):
-        rval = a[i-1]
-        ri = i-1
+        rval = a[i - 1]
+        ri = i - 1
     else:
         rval = a[i]
         ri = i
@@ -115,7 +115,7 @@ if __name__ == "__main__":
         Take the inputfile name from the commandline
     '''
     infile = ""
-    if len(sys.argv) >1:
+    if len(sys.argv) > 1:
         infile = sys.argv[1]
     else:
         print "Error: Wrong parameters!"
@@ -144,25 +144,25 @@ with open(infile, 'r') as fp:
     
     
     # convert all the elevation angle to radious where radious r means (9-r)*10 degree elevation
-    for r in reversed (range (1,10)):
-        for i in range(0,36):
-            polar_data.append( [r,
-                float(data[(9-r)*36+i][0]),
-                float(data[(9-r)*36+i][2])])
+    for r in reversed (range (1, 10)):
+        for i in range(0, 36):
+            polar_data.append([r,
+                float(data[(9 - r) * 36 + i][0]),
+                float(data[(9 - r) * 36 + i][2])])
     
     #take the avg of all the 90 degree elevation readings
     sum90 = 0
-    for i in range(0,36):
-            sum90 += float(data[(9)*36+i][2])
+    for i in range(0, 36):
+            sum90 += float(data[(9) * 36 + i][2])
     avg90 = sum90 / 36.0
     
-    polar_data.append([0,0,avg90])
+    polar_data.append([0, 0,avg90])
     
     #print polar_data size
     print len(polar_data)
     
     #print the polar data to csv file 
-    outfile3 = "d3"+"polar"+infile
+    outfile3 = "d3" + "polar" + infile
     with open (outfile3, 'w') as f_eos:
         w = csv.writer(f_eos)
         w.writerows(sorted(polar_data))
@@ -183,7 +183,7 @@ with open(outfile3, 'r') as fp:
     lines = fp.readlines()
     data = []
     for ln in lines:
-        line_toks = re.split(",|\r\n",ln)
+        line_toks = re.split(",|\r\n", ln)
         r = float(line_toks[0])
         theta = float(line_toks[1])
         val = float(line_toks[2])
@@ -193,7 +193,7 @@ with open(outfile3, 'r') as fp:
         cart_data.append([x,y,val])
         
     #print Cartesian data to file 
-    outfile4 = "d4"+"cart-sparce" + outfile3
+    outfile4 = "d4" + "cart-sparce" + outfile3
     with open (outfile4, 'w') as f_eos:
         w = csv.writer(f_eos)
         w.writerows(sorted(cart_data))
@@ -206,13 +206,13 @@ with open(outfile3, 'r') as fp:
 
 points = []
 values = []
-infile =outfile4
+infile = outfile4
 with open(infile, 'r') as fp:
     lines = fp.readlines()
     data = []
     for ln in lines:
-        line_toks = re.split(",|\r\n",ln)
-        points.append( [float(line_toks[0]),float(line_toks[1])])
+        line_toks = re.split(",|\r\n", ln)
+        points.append( [float(line_toks[0]), float(line_toks[1])])
         values.append(float(line_toks[2]))
     
     #print points.shape
@@ -222,13 +222,13 @@ with open(infile, 'r') as fp:
     print npoints.shape
     nvalues = np.array(values)
     print nvalues.shape
-    print 'minimum value=',min(nvalues)
+    print 'minimum value=', min(nvalues)
     #points to be interpolated
     in_points = []
     
     #take equally spaced 1000 values on the x line between -9 to 9
-    ixp = np.linspace(-9,9,1000)
-    iyp = np.linspace(-9,9,1000) # same for the y
+    ixp = np.linspace(-9, 9, 1000)
+    iyp = np.linspace(-9, 9, 1000) # same for the y
     
     # now we creat 1000*1000 meshgrids for x and y values of the target points. 
     # on which the interpolated values are to be computed. 
@@ -240,12 +240,12 @@ with open(infile, 'r') as fp:
     #interpolated values
     # the survey points and values are given in npoints and nvalues. The fill values are initially given to be minimum of all values. 
     # the interpolated values are returned in invals.     
-    invals = griddata(npoints,nvalues,(xv,yv),method='cubic',fill_value=min(nvalues))
+    invals = griddata(npoints,nvalues,(xv,yv), method = 'cubic', fill_value = min(nvalues))
        
     
     #the polar points where we would sample from the interpolated data. 
     #we have taken 1000*1000 cartesian grid for interpolation to minimize rounding error in this sampling. 
-r = np.linspace(0,9,100)
+r = np.linspace(0, 9, 100)
 t = np.linspace(0.0, 2.0 * np.pi, 360)
     
     
@@ -270,11 +270,11 @@ for i in range(rv.shape[0]): #shape is a pair object
                 the original polar point. 
                 (we can exponentially improve the speed by usign binary search here)
         '''
-        x_dist = rv[i][j]*np.cos(tv[i][j])
+        x_dist = rv[i][j] * np.cos(tv[i][j])
         
         #x_loc =  min(range(len(ixp)), key=lambda i: abs(ixp[i]-x_dist))
-        x_loc = findclosest(ixp,x_dist)
-        y_dist = rv[i][j]*np.sin(tv[i][j])
+        x_loc = findclosest(ixp, x_dist)
+        y_dist = rv[i][j] * np.sin(tv[i][j])
         #y_loc =  min(range(len(iyp)), key=lambda i: abs(iyp[i]-y_dist))
         y_loc = findclosest(iyp, y_dist)
         
@@ -289,11 +289,11 @@ print polar_values.shape
 # GridSpec is used to format the heatmap plot
 #here 2 side by side plot space are created.
 gs = gridspec.GridSpec(1, 2,
-                       width_ratios=[10,1],
+                       width_ratios = [10,1],
                        )
 
 #ax1 contains the polar heatmap
-ax1 = plt.subplot(gs[0], projection="polar", aspect=1.)
+ax1 = plt.subplot(gs[0], projection = "polar", aspect = 1.)
 ax1.set_theta_zero_location("N")
 ax1.title.set_text('noise-floor heatmap')
 
@@ -313,18 +313,14 @@ ax2.title.set_text('noise level in dbm')
 '''anything below or above vmin or vmax respectively will be replaced
     by vmin or vmax respectively '''
 # the colorbar is returned in im 
-im = ax1.pcolormesh(tv,rv,polar_values,vmin=-125,vmax=-90)
+im = ax1.pcolormesh(tv, rv, polar_values, vmin = -125, vmax = -90)
 
 # If you dont want a fixed max - min range use the following instead
 #im = ax1.pcolormesh(tv,rv,polar_values)
 
 ax1.grid(True)
-plt.colorbar(im, cax=ax2) #plot the colorbor bside the heatmap
+plt.colorbar(im, cax = ax2) #plot the colorbor bside the heatmap
 
-
-plt.savefig("processed"+infile+".png") # save to file. other image formats are available. just change the suffics here. 
-print "output plot to file "+"processed"+infile+".png"
-plt.show() #display plot. 
-
-
-
+plt.savefig("processed" + infile + ".png") # save to file. other image formats are available. just change the suffics here. 
+print "output plot to file " + "processed" + infile+ ".png"
+plt.show() #display plot.
