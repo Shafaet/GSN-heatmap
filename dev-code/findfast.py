@@ -17,13 +17,11 @@ using the python bisect module
 
     You should have received a copy of the GNU Public License along with
     this source code; if not, see <https://www.gnu.org/licenses/gpl.html>
-
-
 '''
 
 import bisect
 
-a = [-20,-10,30,40,50,60]
+a = [-20, -10, 30, 40, 50, 60]
 
 x = -11
 print 'search for', x
@@ -36,7 +34,8 @@ print 'search for', x
             
     output: i = the index of the value closest to x in a
 '''
-def findclosest(a,x):
+
+def findclosest(a, x):
     '''
         a must be a sorted list in an ascending order
     '''
@@ -44,23 +43,23 @@ def findclosest(a,x):
     amin = a[0]
     amax = a[-1]
     
-    i = bisect.bisect(a,x)
+    i = bisect.bisect(a, x)
     
     print 'bi', i
     
     li = None
     
-    if (i-1 < 0):
+    if (i - 1 < 0):
         lval = amin
         li = 0
     else:
-        lval = a[i-1]
+        lval = a[i - 1]
         li = i-1
         
-    print 'lval' ,lval
+    print 'lval', lval
     
     if (i == len(a)):
-        rval = a[i-1]
+        rval = a[i - 1]
         ri = i-1
     else:
         rval = a[i]
@@ -73,8 +72,6 @@ def findclosest(a,x):
     else:
         return ri
 
-i = findclosest (a,x);
+i = findclosest (a, x);
 print 'i', i
 print 'a[i]', a[i]
-
-    
