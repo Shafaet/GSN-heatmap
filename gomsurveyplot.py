@@ -10,15 +10,15 @@ output:        A heatmap plot of the input data.
                    And all the middle values can be understood similarly. For tag 
                    value t the degree value of the elevation is (9-t)*10.  
                    Please consult the documentation to understand the mathematical 
-                   basis of this plot.                   
-     
+                   basis of this plot.
+
 Usages:        To use the program run: python gomsurveyplot.py [inputfile name]
                    Replace [inputfile name] with our csv file names. 
-    
+
 Prerequisites: This program is tested for python2.7 
                You need the following libraries
-                   
-               numpy     
+
+               numpy
                Scipy
                matplotlib 
                    
@@ -83,50 +83,25 @@ from scipy import ndimage
                 the closest element in a sorted list. 
     inputs: a  = a list sorted in an ascending order 
             x  = the search item
-            
+
     output: i = the index of the value closest to x in a
 '''
-def findclosest(a,x):
-    '''
-        a must be a sorted list in an ascending order
-    '''
-    
-    amin = a[0]
-    amax = a[-1]
-    
-    i = bisect.bisect(a,x)
-        
-    li = None
-    
-    if (i - 1 < 0):
-        lval = amin
-        li = 0
-    else:
-        lval = a[i - 1]
-        li = i - 1
-       
-    
-    if (i == len(a)):
-        rval = a[i - 1]
-        ri = i - 1
-    else:
-        rval = a[i]
-        ri = i
-    
-    if (x - lval) <= (rval - x):
-        return li
-    else:
-        return ri
-
-
-
+def findclosest(a, x):
+    i = bisect.bisect(a, x)
+    if i == len(a):
+        return len(a)-1
+    if i == 0:
+        return 0
+    if x - a[i-1] <= a[i] - x:
+        return i-1
+    return i
 
 '''
 The main function
 '''
 if __name__ == "__main__":
- 
- 
+
+
     '''
         Take the inputfile name from the commandline
     '''
@@ -137,11 +112,11 @@ if __name__ == "__main__":
         print "Error: Wrong parameters!"
         print "try: python gomsurveyplot.py infile.csv"
         exit()
-        
+
     #rval = float(sys.argv[2])
     #tval = float(sys.argv[3])
-    
-    
+
+
 #GomSpace csv data to be loaded in polar format in this list
 polar_data = []
 
@@ -157,15 +132,15 @@ with open(infile, 'r') as fp:
         data.append(line_toks)
     print len(lines)
     print len(data)
-    
-    
+
+
     # convert all the elevation angle to radious where radious r means (9-r)*10 degree elevation
     for r in reversed (range (1, 10)):
         for i in range(0, 36):
             polar_data.append([r,
                 float(data[(9 - r) * 36 + i][0]),
                 float(data[(9 - r) * 36 + i][2])])
-    
+
     #take the avg of all the 90 degree elevation readings
     sum90 = 0
     for i in range(0, 36):
@@ -173,19 +148,21 @@ with open(infile, 'r') as fp:
     avg90 = sum90 / 36.0
     
     polar_data.append([0, 0,avg90])
-    
+
     #print polar_data size
     print len(polar_data)
-    
+
     #print the polar data to csv file 
+
     outfile3 = "d3" + "polar" + os.path.basename(infile)
+
     with open (outfile3, 'w') as f_eos:
         w = csv.writer(f_eos)
         w.writerows(sorted(polar_data))
         print "output written in "+ outfile3
 
 
-''' 
+'''
     The data is taken for only 360 points. To get the 2d heatmap for the whole sky
     we want to interpolate it for all the other points.  
     We cannot perform interpolation using the existing python interpolation libraries if the 
@@ -230,10 +207,10 @@ with open(infile, 'r') as fp:
         line_toks = re.split(",|\r\n", ln)
         points.append( [float(line_toks[0]), float(line_toks[1])])
         values.append(float(line_toks[2]))
-    
+
     #print points.shape
     #print values.shape
-    
+
     npoints = np.array(points)
     print npoints.shape
     nvalues = np.array(values)
@@ -241,11 +218,11 @@ with open(infile, 'r') as fp:
     print 'minimum value=', min(nvalues)
     #points to be interpolated
     in_points = []
-    
+
     #take equally spaced 1000 values on the x line between -9 to 9
     ixp = np.linspace(-9, 9, 1000)
     iyp = np.linspace(-9, 9, 1000) # same for the y
-    
+
     # now we creat 1000*1000 meshgrids for x and y values of the target points. 
     # on which the interpolated values are to be computed. 
     # the shape of the meshgrid has some quirks please carefully review the numpy.meshgrid documentation.
@@ -257,14 +234,13 @@ with open(infile, 'r') as fp:
     # the survey points and values are given in npoints and nvalues. The fill values are initially given to be minimum of all values. 
     # the interpolated values are returned in invals.     
     invals = griddata(npoints,nvalues,(xv,yv), method = 'cubic', fill_value = min(nvalues))
-       
-    
+
     #the polar points where we would sample from the interpolated data. 
     #we have taken 1000*1000 cartesian grid for interpolation to minimize rounding error in this sampling. 
 r = np.linspace(0, 9, 100)
 t = np.linspace(0.0, 2.0 * np.pi, 360)
-    
-    
+
+
 # as usual, creat the meshgrid. 
 rv,tv = np.meshgrid(r, t)
 print rv.shape
@@ -296,8 +272,8 @@ for i in range(rv.shape[0]): #shape is a pair object
         
         #the sampling happends here
         polar_values[i][j] = invals[y_loc][x_loc]
-   
-   
+
+
 print polar_values.shape
 
 #plt.title('MD1 noise-floor heatmap')
